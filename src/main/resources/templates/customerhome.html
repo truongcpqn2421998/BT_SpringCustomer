@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+</head>
+<script type="text/javascript">
+    function successHandler() {
+        $.ajax({
+            type: "GET",
+            //tên API
+            url: "/list",
+            //xử lý khi thành công
+            success: function (data) {
+                // hien thi danh sach o day
+                let content = '    <tr>\n' +
+                    '        <td>Name</td>\n' +
+                    '        <td>Email</td>\n' +
+                    '        <td>Address</td>\n' +
+                    '        <td>Edit</td>\n' +
+                    '        <td>Delete</td>\n' +
+                    '    </tr>';
+                for (let i = 0; i < data.length; i++) {
+                    content += getCustomer(data[i]);
+                }
+                document.getElementById('customerList').innerHTML = content;
+            }
+        })
+    }
+
+    function getCustomer(customer) {
+        return `<tr><td >${customer.name}</td>
+                        <td >${customer.email}</td>
+                        <td >${customer.address.name}</td>` +
+            `<td><button type="submit" value="${customer.id}" onclick="showEdit(this)">Edit</button></td>` +
+            `<td><button type="submit" value="${customer.id}" onclick="deleteCustomer(this)">Delete</button></td></tr>`
+    }
+
+    function add() {
+        document.getElementById("add-customer").style.display = "block";
+        document.getElementById("buttonAdd").style.display = "none";
+    }
+
+    function closecreate() {
+        document.getElementById("add-customer").style.display = "none";
+    }
+
+    function addnewcustomer() {
+        let name = $('#name').val();
+        let email = $('#email').val();
+        let address = $('#address').val();
+        let newcustomer = {
+            name: name,
+            email: email,
+            address: {id: address}
+        };
+        $.ajax({
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+            },
+            type: "POST",
+            data: JSON.stringify(newcustomer),
+            url: "/create",
+            success: successHandler()
+        })
+        event.preventDefault();
+    }
+
+    function showEdit(a) {
+        let id = a.getAttribute("value");
+        $('#editCustomer').show()
+        $.ajax({
+            type: "GET",
+            url: "/customer/" + id,
+            success: function (customer) {
+                $('#idEdit').val(customer.id);
+                $('#nameEdit').val(customer.name);
+                $('#emailEdit').val(customer.email);
+                $('#addressEdit').val(customer.address);
+            }
+        })
+        event.preventDefault();
+    }
+
+
+
+    function updateCustomer(){
+        let id=$('#idEdit').val();
+        let name=$('#nameEdit').val();
+        let email=$('#emailEdit').val();
+        let address=$('#addressEdit').val();
+        let customer={
+            id :id,
+            name:name,
+            email:email,
+            address: {id:address}
+        };
+        $.ajax({
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+            },
+            type: "PUT",
+            url: "/edit",
+            data: JSON.stringify(customer),
+            success:successHandler()
+        })
+        event.preventDefault();
+    }
+    function closeEditForm(){
+        document.getElementById("editCustomer").style.display = "none";
+    }
+
+    function deleteCustomer(a){
+        let id=a.getAttribute("value");
+        $.ajax({
+            type:"DELETE",
+            url:"/delete/"+id,
+            success:successHandler()
+        })
+    }
+
+</script>
+<body>
+<h1>Customer List</h1>
+<button type="submit" id="buttonAdd" onclick="add()">ADD</button>
+<form id="editCustomer" style="display: none">
+    <h2>Edit Customer</h2>
+    <table>
+        <input name="idEdit" id="idEdit" hidden>
+        <tr>
+            <td>Name:</td>
+            <td><input type="text" id="nameEdit" placeholder="name"></td>
+        </tr>
+        <tr>
+            <td>Email:</td>
+            <td><input type="text" id="emailEdit" placeholder="email"></td>
+        </tr>
+        <tr>
+            <td>Address:</td>
+            <td><select id="addressEdit">
+                <option th:each="a: ${addressList}" th:value="${a.id}" th:text="${a.name}" selected=""></option>
+            </select></td>
+        </tr>
+        <tr>
+            <td><input type="submit" value="Edit" onclick="updateCustomer()"></td>
+            <td><input type="submit" value="close" onclick="closeEditForm()"></td>
+        </tr>
+    </table>
+</form>
+<form id="add-customer" style="display: none">
+    <h2>Create Customer</h2>
+    <table>
+        <tr>
+            <td>Name:</td>
+            <td><input type="text" id="name" placeholder="name"></td>
+        </tr>
+        <tr>
+            <td>Email:</td>
+            <td><input type="text" id="email" placeholder="email"></td>
+        </tr>
+        <tr>
+            <td>Address:</td>
+            <td>
+                <select id="address">
+                    <option th:each="a: ${addressList}" th:value="${a.id}" th:text="${a.name}"></option>
+                </select>
+            </td>
+        </tr>
+        <tr>
+            <td><input type="submit" value="Add" onclick="addnewcustomer()"></td>
+            <td><input type="submit" value="close" onclick="closecreate()"></td>
+        </tr>
+    </table>
+</form>
+
+<table border="1" id="customerList">
+    <tr>
+        <th>name</th>
+        <th>email</th>
+        <th>address</th>
+        <th>Edit</th>
+        <th>Delete</th>
+    </tr>
+    <tr th:each="c : ${customers}">
+        <td th:text="${c.name}"></td>
+        <td th:text="${c.email}"></td>
+        <td th:if="${c.address}" th:text="${c.address.name}"></td>
+        <td th:unless="${c.address}"></td>
+        <td>
+            <button type="submit" th:value="${c.id}" onclick="showEdit(this)"> Edit</button>
+        </td>
+        <td>
+            <button type="submit" th:value="${c.id}" onclick="deleteCustomer(this)">Delete</button>
+        </td>
+    </tr>
+</table>
+</body>
+</html>
