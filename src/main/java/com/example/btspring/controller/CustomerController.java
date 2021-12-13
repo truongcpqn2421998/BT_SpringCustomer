@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 
 @Controller
+@CrossOrigin("*")
 public class CustomerController {
     @Autowired
     private ICustomerService customerService;
@@ -24,13 +25,6 @@ public class CustomerController {
         return addressService.findAll();
     }
 
-    @GetMapping("/home")
-    public ModelAndView home(){
-        ModelAndView modelAndView=new ModelAndView("customerhome");
-        Iterable<Customer> customers=customerService.findAll();
-        modelAndView.addObject("customers",customers);
-        return modelAndView;
-    }
 
 
     @PostMapping("/create")
@@ -60,4 +54,5 @@ public class CustomerController {
         customerService.remove(id);
         return new ResponseEntity<>(HttpStatus.OK);
     }
+
 }
