@@ -32,20 +32,6 @@ public class CustomerController {
         return modelAndView;
     }
 
-    @GetMapping("/customer/create")
-    public ModelAndView createForm(){
-        ModelAndView modelAndView= new ModelAndView("create");
-        modelAndView.addObject("customer",new Customer());
-        return modelAndView;
-    }
-
-//    @PostMapping("/customer/create")
-//    public ModelAndView create(@ModelAttribute Customer customer){
-//        ModelAndView modelAndView=new ModelAndView("/create");
-//        customerService.save(customer);
-//        modelAndView.addObject("message","thanh cong");
-//        return modelAndView;
-//    }
 
     @PostMapping("/create")
     public ResponseEntity<Customer> create(@RequestBody Customer customer){

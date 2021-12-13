@@ -9,11 +9,8 @@
     function successHandler() {
         $.ajax({
             type: "GET",
-            //tên API
             url: "/list",
-            //xử lý khi thành công
             success: function (data) {
-                // hien thi danh sach o day
                 let content = '    <tr>\n' +
                     '        <td>Name</td>\n' +
                     '        <td>Email</td>\n' +
@@ -63,7 +60,7 @@
             type: "POST",
             data: JSON.stringify(newcustomer),
             url: "/create",
-            success: successHandler()
+            success: successHandler
         })
         event.preventDefault();
     }
@@ -105,7 +102,7 @@
             type: "PUT",
             url: "/edit",
             data: JSON.stringify(customer),
-            success:successHandler()
+            success:successHandler
         })
         event.preventDefault();
     }
@@ -118,7 +115,7 @@
         $.ajax({
             type:"DELETE",
             url:"/delete/"+id,
-            success:successHandler()
+            success:successHandler
         })
     }
 
